@@ -1,0 +1,105 @@
+import sqlite3
+import os
+
+# Remove existing database if it exists
+db_file = 'company_db.db'
+if os.path.exists(db_file):
+    os.remove(db_file)
+
+# Connect to SQLite database (creates it automatically)
+conn = sqlite3.connect(db_file)
+cursor = conn.cursor()
+
+print("=" * 50)
+print("STEP 1-3: Database and Connection Setup")
+print("=" * 50)
+print("Database 'company_db' created and connected successfully!")
+
+# Step 4: Create employees table
+print("\n" + "=" * 50)
+print("STEP 4: Create employees table")
+print("=" * 50)
+cursor.execute('''
+    CREATE TABLE employees (
+        emp_id INT PRIMARY KEY,
+        emp_name VARCHAR(50) NOT NULL,
+        email VARCHAR(100) UNIQUE,
+        department CHAR(10),
+        salary INT,
+        joining_date DATE,
+        created_at DATETIME
+    )
+''')
+print("Table 'employees' created successfully!")
+
+# Step 5: Insert employee records
+print("\n" + "=" * 50)
+print("STEP 5: Insert 5 employee records")
+print("=" * 50)
+employees_data = [
+    (101, 'Rahul Sharma', 'rahul@gmail.com', 'HR', 40000, '2023-01-15', 'now'),
+    (102, 'Priya Singh', 'priya@gmail.com', 'Finance', 50000, '2022-07-10', 'now'),
+    (103, 'Amit Verma', 'amit@gmail.com', 'IT', 60000, '2021-03-22', 'now'),
+    (104, 'Neha Kapoor', 'neha@gmail.com', 'Sales', 45000, '2023-06-18', 'now'),
+    (105, 'Arjun Mehta', 'arjun@gmail.com', 'Admin', 42000, '2022-11-05', 'now')
+]
+
+for emp in employees_data:
+    cursor.execute('''
+        INSERT INTO employees VALUES (?, ?, ?, ?, ?, ?, datetime(?))
+    ''', emp)
+
+conn.commit()
+print("5 employee records inserted successfully!")
+
+# Step 6: Display all records
+print("\n" + "=" * 50)
+print("STEP 6: Display all records from employees")
+print("=" * 50)
+cursor.execute("SELECT * FROM employees")
+rows = cursor.fetchall()
+print(f"{'ID':<8} {'Name':<20} {'Email':<25} {'Dept':<10} {'Salary':<10} {'Join Date':<12} {'Created At'}")
+print("-" * 100)
+for row in rows:
+    print(f"{row[0]:<8} {row[1]:<20} {row[2]:<25} {row[3]:<10} {row[4]:<10} {row[5]:<12} {row[6]}")
+
+# Step 7: Verify table structure
+print("\n" + "=" * 50)
+print("STEP 7: Verify table structure")
+print("=" * 50)
+cursor.execute("PRAGMA table_info(employees)")
+columns = cursor.fetchall()
+print(f"{'CID':<5} {'Name':<20} {'Type':<15} {'NotNull':<8} {'Default':<10} {'PK'}")
+print("-" * 70)
+for col in columns:
+    print(f"{col[0]:<5} {col[1]:<20} {col[2]:<15} {col[3]:<8} {str(col[4]):<10} {col[5]}")
+
+# Step 8: Drop the table
+print("\n" + "=" * 50)
+print("STEP 8: Drop the employees table")
+print("=" * 50)
+cursor.execute("DROP TABLE employees")
+print("Table 'employees' dropped successfully!")
+
+# Verify table is dropped
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+tables = cursor.fetchall()
+print(f"Remaining tables in database: {tables if tables else 'None'}")
+
+# Close connection
+conn.close()
+
+print("\n" + "=" * 50)
+print("STEP 9: Drop the database")
+print("=" * 50)
+print("In SQLite, to drop the database, we simply delete the database file.")
+if os.path.exists(db_file):
+    os.remove(db_file)
+    print(f"Database file '{db_file}' deleted successfully!")
+else:
+    print(f"Database file '{db_file}' not found.")
+
+print("\n" + "=" * 50)
+print("ALL SQL QUERIES COMPLETED SUCCESSFULLY!")
+print("=" * 50)
+
